@@ -20,34 +20,48 @@ namespace WebApp.Controllers
 
         public IActionResult Cadastrar()
         {
-            
-            return View();
-        }
 
-
-        public IActionResult adicionar()
-        {
             return View();
         }
 
         [HttpPost]
-        public IActionResult adicionar([FromBody]AlunoModal aluno)
+        public IActionResult Cadastrar(Aluno aluno)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                _repositorio.Add(aluno);
+                return RedirectToActionPermanentPreserveMethod("Index", "Home");
             }
-            string cpf = aluno.CPF.Replace(".", "").Replace("-", "");
-            Aluno newAluno = new Aluno()
-            {
-                Matricula = aluno.Matricula,
-                Nome = aluno.Nome,
-                CPF = cpf,
-                Nascimento = aluno.Nascimento,
-                Sexo = (EM_DomainEnum.EnumeradorSexo)aluno.Sexo
-            };
-            _repositorio.Add(newAluno);
-            return RedirectToActionPermanentPreserveMethod("Index", "Home");
+            return BadRequest(ModelState);
         }
+        [HttpGet]
+        public IActionResult Editar(int id)
+        {
+            var aluno = _repositorio.GetByMatricula(id);
+            return View(aluno);
+        }
+
+        [HttpPost]
+        public IActionResult Editar(Aluno aluno)
+        {
+            if (ModelState.IsValid)
+            {
+                _repositorio.Update(aluno);
+                return RedirectToActionPermanentPreserveMethod("Index", "Home");
+            }
+            return BadRequest(ModelState);
+        }
+
+        public IActionResult Deletar(int id)
+        {
+            var aluno = _repositorio.GetByMatricula(id);
+            if (aluno != null)
+            {
+                _repositorio.Remove(aluno);
+                return RedirectToActionPermanentPreserveMethod("Index", "Home");
+            }
+            return BadRequest(ModelState);
+        }
+
     }
 }

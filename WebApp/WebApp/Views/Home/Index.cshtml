@@ -48,13 +48,36 @@
                         @Html.DisplayFor(Model => aluno.CPF)
                     </td>
                     <td>
-                        <button role="button"
+                        <a role="button"
                             class="btn btn-primary"
                             asp-route-id="@aluno.Matricula"
+                            asp-action="Editar"
+                            asp-controller="Aluno"
                             id="buttonteste">
                             Editar
-                        </button>
-                        <a role="button" class="btn btn-danger" asp-route-id="@aluno.Matricula" asp-controller="Usuario" asp-action="Excluir">Excluir</a>
+                        </a>
+                        <button role="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@aluno.Matricula">Excluir</button>
+
+                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="recipient-name" class="col-form-label">Recipient:</label>
+                                            <input type="text" class="form-control" id="recipient-name">
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <a role="button" class="btn btn-danger" asp-route-id="@aluno.Matricula" asp-controller="Aluno" asp-action="Deletar">Excluir</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </td>
                 </tr>
             }

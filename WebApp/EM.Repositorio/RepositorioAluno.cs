@@ -141,14 +141,12 @@ namespace EM_RepositorioAluno
                 connection.Open();
                 try
                 {
-                    string stringCommand = @"INSERT INTO TBALUNO (ALUMATRICULA, ALUNOME, ALUCPF, ALUNASCIMENTO, ALUSEXO) 
-                                             VALUES(@Matricula, '@Nome', '@CPF', '@Data', @Sexo);";
+                    string stringCommand = "INSERT INTO TBALUNO (ALUMATRICULA, ALUNOME, ALUCPF, ALUNASCIMENTO, ALUSEXO) VALUES((GEN_ID(GEN_TBALUNO, 1)), @Nome, @CPF, @Data, @Sexo);";
                     var command = new FbCommand(stringCommand, connection);
 
-                    command.Parameters.Add("@Matricula", aluno.Matricula);
                     command.Parameters.Add("@Nome", aluno.Nome);
                     command.Parameters.Add("@CPF", aluno.CPF.Replace(".", "").Replace("-", ""));
-                    command.Parameters.Add("@Data", aluno.Nascimento.ToString("yyyy-MM-dd"));
+                    command.Parameters.Add("@Data", aluno.Nascimento.ToString("yyyy/MM/dd"));
                     command.Parameters.Add("@Sexo", (int)aluno.Sexo);
 
                     command.ExecuteNonQuery();
@@ -189,7 +187,7 @@ namespace EM_RepositorioAluno
                 {
                     string CPF = aluno.CPF.Replace(".", "").Replace("-", "");
                     string Data = aluno.Nascimento.ToString("yyyy-MM-dd");
-                    string stringCommand = @"UPDATE TBALUNO SET ALUMATRICULA = @Matricula ,ALUNOME = '@Nome',ALUCPF = '@CPF', ALUNASCIMENTO = '@Data', ALUSEXO = @Sexo
+                    string stringCommand = @"UPDATE TBALUNO SET ALUMATRICULA = @Matricula ,ALUNOME = @Nome,ALUCPF = @CPF, ALUNASCIMENTO = @Data, ALUSEXO = @Sexo
                                                 WHERE ALUMATRICULA = @Matricula;";
                     var command = new FbCommand(stringCommand, connection);
 
