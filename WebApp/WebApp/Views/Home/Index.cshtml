@@ -3,9 +3,30 @@
     ViewData["Title"] = "Home Page";
 }
 
+
+
 <div class="text-center">
-    <div>
-        <a role="button" class="btn btn-link" asp-controller="Aluno" asp-action="Cadastrar">Cadastrar</a>
+    <h1>Listagem de Alunos</h1>
+    <div class="row mb-4">
+        <div class="col text-start my-auto">
+            <a role="button" class="btn btn-primary" asp-controller="Aluno" asp-action="Cadastrar">Cadastrar</a>
+        </div>
+        <form class="col my-auto d-flex flex-row align-content-center justify-content-end" asp-action="Index" method="post">
+            <div class="my-auto">
+                <input class="form-check-input" type="radio" name="TipoDeBusca" id="Busscar_por_matricula" value="Matricula" required>
+                <label class="form-check-label" for="Busscar_por_matricula">
+                    Buscar por matriculas
+                </label>
+                <input class="form-check-input" type="radio" name="TipoDeBusca" id="Busscar_por_nome" value="Nome">
+                <label class="form-check-label" for="Busscar_por_nome">
+                    Buscar por nome
+                </label>
+            </div>
+            <div class="my-auto mx-3">
+                <input type="text" name="ValorDaBusca" class="form-control-sm" />
+                <input type="submit" class="btn btn-primary" />
+            </div>
+        </form>
     </div>
     <table class="table table-striped table-bordered">
         <thead class="bg-success">
@@ -29,58 +50,57 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var aluno in Model)
+            @if (Model != null)
             {
-                <tr>
-                    <th scope="row">
-                        @Html.DisplayFor(Model => aluno.Matricula)
-                    </th>
-                    <td>
-                        @Html.DisplayFor(Model => aluno.Nome)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(Model => aluno.Sexo)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(Model => aluno.NascimentoFormatado)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(Model => aluno.CPF)
-                    </td>
-                    <td>
-                        <a role="button"
-                            class="btn btn-primary"
-                            asp-route-id="@aluno.Matricula"
-                            asp-action="Editar"
-                            asp-controller="Aluno"
-                            id="buttonteste">
-                            Editar
-                        </a>
-                        <button role="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@aluno.Matricula">Excluir</button>
+                @foreach (var aluno in Model)
+                {
+                    <tr>
+                        <th scope="row">
+                            @Html.DisplayFor(Model => aluno.Matricula)
+                        </th>
+                        <td>
+                            @Html.DisplayFor(Model => aluno.Nome)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(Model => aluno.Sexo)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(Model => aluno.NascimentoFormatado)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(Model => aluno.CPF)
+                        </td>
+                        <td>
+                            <a role="button"
+                       class="btn btn-primary"
+                       asp-route-id="@aluno.Matricula"
+                       asp-action="Editar"
+                       asp-controller="Aluno"
+                       id="buttonteste">
+                                Editar
+                            </a>
+                            <button role="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDelete" data-bs-whatever="@aluno.Matricula">Excluir</button>
 
-                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="mb-3">
-                                            <label for="recipient-name" class="col-form-label">Recipient:</label>
-                                            <input type="text" class="form-control" id="recipient-name">
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <a role="button" class="btn btn-danger" asp-route-id="@aluno.Matricula" asp-controller="Aluno" asp-action="Deletar">Excluir</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
+
+                        </td>
+                    </tr>
+                }
             }
         </tbody>
     </table>
+</div>
+
+<div class="modal fade" id="confirmDelete" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="confirmDeleteLabel">Deseja confirmar e excluir? </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a role="button" id="buttonDelete" class="btn btn-danger" asp-controller="Aluno" asp-action="Deletar">Excluir</a>
+            </div>
+        </div>
+    </div>
 </div>

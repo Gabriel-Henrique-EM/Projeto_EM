@@ -13,11 +13,6 @@ namespace WebApp.Controllers
             _repositorio = repositorio;
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
-
         public IActionResult Cadastrar()
         {
 
@@ -34,7 +29,6 @@ namespace WebApp.Controllers
             }
             return BadRequest(ModelState);
         }
-        [HttpGet]
         public IActionResult Editar(int id)
         {
             var aluno = _repositorio.GetByMatricula(id);
@@ -62,6 +56,5 @@ namespace WebApp.Controllers
             }
             return BadRequest(ModelState);
         }
-
     }
 }

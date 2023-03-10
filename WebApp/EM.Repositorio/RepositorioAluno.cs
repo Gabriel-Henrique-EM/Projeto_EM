@@ -100,9 +100,9 @@ namespace EM_RepositorioAluno
                 try
                 {
                     connection.Open();
-                    string stringCommand = @"SELECT * FROM TBALUNO WHERE ALUNOME LIKE '%@Nome%';";
+                    string stringCommand = @$"SELECT * FROM TBALUNO WHERE ALUNOME LIKE '%{nome}%';";
                     var command = new FbCommand(stringCommand, connection);
-                    command.Parameters.Add("@Nome", nome);
+                    //command.Parameters.Add("@Nome", nome);
 
                     using (var reader = command.ExecuteReader())
                     {
