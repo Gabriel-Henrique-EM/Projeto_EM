@@ -1,14 +1,21 @@
 ﻿@model EM_DomainAluno.Aluno
 
 @{
-    ViewData["Title"] = "Cadastrar";
+    if (Model != null)
+    {
+        ViewData["Title"] = "Editar";
+    }
+    else
+    {
+        ViewData["Title"] = "Cadastrar";
+    }
 }
 <div>
-    <h1>Cadastrar</h1>
+    <h1>@ViewData["Title"] Aluno</h1>
     <hr />
     <div class="row justify-content-center align-content-center">
         <div class="col-md-4">
-            <form asp-action="Cadastrar">
+            <form asp-action="@ViewData["Title"]" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
                     <label asp-for="Nome" class="control-label"></label>
@@ -19,7 +26,7 @@
                     <label asp-for="CPF" class="control-label"></label>
                     <input asp-for="CPF"
                            maxlength="14"
-                           oninput="this.value = this.value.replace(/[^\d.-]/g, '').replace(/^(\d{3})(\d{3})(\d{3})(\d{2}).*/, '$1.$2.$3-$4');"
+                           oninput="this.value = this.value.replace(/[^\d]/g, '').replace(/^(\d{3})(\d{3})(\d{3})(\d{2}).*/, '$1.$2.$3-$4');"
                            class="form-control" />
                     <span asp-validation-for="CPF" class="text-danger"></span>
                 </div>
@@ -31,21 +38,29 @@
                 <div class="form-group">
                     <label asp-for="Sexo" class="control-label"></label>
                     <select asp-for="Sexo" class="form-select" aria-label="Default select example">
-                        <option selected>Selecione o sexo</option>
+                        <option value="" disable selected>Selecione o sexo</option>
                         <option value="0">Masculino</option>
                         <option value="1">Feminino</option>
                     </select>
                 </div>
+                @if(Model != null){
+                    <input asp-for="Matricula" type="hidden"/>
+                }
                 <div class="form-group mt-3 text-center">
-                    <input type="submit" value="Cadastrar" class="btn btn-primary" />
+                    <input type="submit" value="@ViewData["Title"]" class="btn btn-primary" />
                 </div>
             </form>
             <div class="text-center mt-3">
-                <a role="button" class="btn btn-secondary" asp-action="Index" asp-controller="Home">Voltar para a lista</a>
+                <a role="button" class="btn btn-secondary" asp-action="Index">Voltar para a lista</a>
             </div>
         </div>
     </div>
-
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">
+            @ViewBag.Error
+        </div>
+    }
 </div>
 
 @section Scripts {

@@ -10,5 +10,20 @@ namespace EM_DomainAluno
         public string CPF { get; set; }
         public DateTime Nascimento { get; set; }
         public EnumeradorSexo Sexo { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return base.ToString();
+        }
     }
 }

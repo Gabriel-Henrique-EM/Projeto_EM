@@ -100,25 +100,11 @@ namespace EM_RepositorioAluno
                 try
                 {
                     connection.Open();
-                    string stringCommand = @$"SELECT * FROM TBALUNO WHERE ALUNOME LIKE '%{nome}%';";
+                    string stringCommand = $"SELECT * FROM TBALUNO WHERE ALUNOME LIKE '%{nome.ToLower()}%';";
                     var command = new FbCommand(stringCommand, connection);
-                    //command.Parameters.Add("@Nome", nome);
 
                     using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            var aluno = new Aluno
-                            {
-                                Matricula = reader.GetInt32(reader.GetOrdinal("ALUMATRICULA")),
-                                Nome = reader.GetString(reader.GetOrdinal("ALUNOME")),
-                                CPF = reader.GetString(reader.GetOrdinal("ALUCPF")),
-                                Sexo = (EnumeradorSexo)reader.GetInt32(reader.GetOrdinal("ALUSEXO")),
-                                Nascimento = reader.GetDateTime(reader.GetOrdinal("ALUNASCIMENTO"))
-                            };
-                            alunos.Add(aluno);
-                        }
-                    }
+                         alunos = ReadAlunos(reader);
                 }
                 catch (Exception ex)
                 {
@@ -144,7 +130,7 @@ namespace EM_RepositorioAluno
                     string stringCommand = "INSERT INTO TBALUNO (ALUMATRICULA, ALUNOME, ALUCPF, ALUNASCIMENTO, ALUSEXO) VALUES((GEN_ID(GEN_TBALUNO, 1)), @Nome, @CPF, @Data, @Sexo);";
                     var command = new FbCommand(stringCommand, connection);
 
-                    command.Parameters.Add("@Nome", aluno.Nome);
+                    command.Parameters.Add("@Nome", aluno.Nome.ToLower());
                     command.Parameters.Add("@CPF", aluno.CPF.Replace(".", "").Replace("-", ""));
                     command.Parameters.Add("@Data", aluno.Nascimento.ToString("yyyy/MM/dd"));
                     command.Parameters.Add("@Sexo", (int)aluno.Sexo);
@@ -192,7 +178,7 @@ namespace EM_RepositorioAluno
                     var command = new FbCommand(stringCommand, connection);
 
                     command.Parameters.Add("@Matricula", aluno.Matricula);
-                    command.Parameters.Add("@Nome", aluno.Nome);
+                    command.Parameters.Add("@Nome", aluno.Nome.ToLower());
                     command.Parameters.Add("@CPF", aluno.CPF.Replace(".", "").Replace("-", ""));
                     command.Parameters.Add("@Data", aluno.Nascimento.ToString("yyyy-MM-dd"));
                     command.Parameters.Add("@Sexo", (int)aluno.Sexo);
@@ -204,6 +190,24 @@ namespace EM_RepositorioAluno
                     throw new Exception("Algo deu errado: " + ex);
                 }
             }
+        }
+
+        private static List<Aluno> ReadAlunos(FbDataReader reader)
+        {
+            var alunos = new List<Aluno>();
+            while (reader.Read())
+            {
+                var aluno = new Aluno
+                {
+                    Matricula = reader.GetInt32(reader.GetOrdinal("ALUMATRICULA")),
+                    Nome = reader.GetString(reader.GetOrdinal("ALUNOME")),
+                    CPF = reader.GetString(reader.GetOrdinal("ALUCPF")),
+                    Sexo = (EnumeradorSexo)reader.GetInt32(reader.GetOrdinal("ALUSEXO")),
+                    Nascimento = reader.GetDateTime(reader.GetOrdinal("ALUNASCIMENTO"))
+                };
+                alunos.Add(aluno);
+            }
+            return alunos;
         }
     }
 }
