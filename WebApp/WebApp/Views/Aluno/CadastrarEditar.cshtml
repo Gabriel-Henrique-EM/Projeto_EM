@@ -1,4 +1,4 @@
-﻿@model EM_DomainAluno.Aluno
+﻿@model AlunoModel
 
 @{
     if (Model != null)
@@ -11,11 +11,19 @@
     }
 }
 <div>
+    <div class="row justify-content-end">
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger col-2">
+                @ViewBag.Error
+            </div>
+        }
+    </div>
     <h1>@ViewData["Title"] Aluno</h1>
     <hr />
     <div class="row justify-content-center align-content-center">
         <div class="col-md-4">
-            <form asp-action="@ViewData["Title"]" method="post">
+            <form asp-action="@ViewData["Title"]">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
                     <label asp-for="Nome" class="control-label"></label>
@@ -43,8 +51,9 @@
                         <option value="1">Feminino</option>
                     </select>
                 </div>
-                @if(Model != null){
-                    <input asp-for="Matricula" type="hidden"/>
+                @if (Model != null)
+                {
+                    <input asp-for="Matricula" type="hidden" />
                 }
                 <div class="form-group mt-3 text-center">
                     <input type="submit" value="@ViewData["Title"]" class="btn btn-primary" />
@@ -55,12 +64,6 @@
             </div>
         </div>
     </div>
-    @if (ViewBag.Error != null)
-    {
-        <div class="alert alert-danger">
-            @ViewBag.Error
-        </div>
-    }
 </div>
 
 @section Scripts {

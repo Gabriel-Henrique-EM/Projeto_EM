@@ -121,7 +121,7 @@ namespace EM_RepositorioAluno
 
         public override void Add(Aluno aluno)
         {
-
+            string? CPF = aluno.CPF?.Replace(".", "").Replace("-", "");
             using (var connection = new FbConnection(_connectionString.ToString()))
             {
                 connection.Open();
@@ -131,7 +131,7 @@ namespace EM_RepositorioAluno
                     var command = new FbCommand(stringCommand, connection);
 
                     command.Parameters.Add("@Nome", aluno.Nome.ToLower());
-                    command.Parameters.Add("@CPF", aluno.CPF.Replace(".", "").Replace("-", ""));
+                    command.Parameters.Add("@CPF", CPF);
                     command.Parameters.Add("@Data", aluno.Nascimento.ToString("yyyy/MM/dd"));
                     command.Parameters.Add("@Sexo", (int)aluno.Sexo);
 
@@ -166,12 +166,12 @@ namespace EM_RepositorioAluno
 
         public override void Update(Aluno aluno)
         {
+            string? CPF = aluno.CPF?.Replace(".", "").Replace("-", "");
             using (var connection = new FbConnection(_connectionString.ToString()))
             {
                 connection.Open();
                 try
                 {
-                    string CPF = aluno.CPF.Replace(".", "").Replace("-", "");
                     string Data = aluno.Nascimento.ToString("yyyy-MM-dd");
                     string stringCommand = @"UPDATE TBALUNO SET ALUMATRICULA = @Matricula ,ALUNOME = @Nome,ALUCPF = @CPF, ALUNASCIMENTO = @Data, ALUSEXO = @Sexo
                                                 WHERE ALUMATRICULA = @Matricula;";
@@ -179,7 +179,7 @@ namespace EM_RepositorioAluno
 
                     command.Parameters.Add("@Matricula", aluno.Matricula);
                     command.Parameters.Add("@Nome", aluno.Nome.ToLower());
-                    command.Parameters.Add("@CPF", aluno.CPF.Replace(".", "").Replace("-", ""));
+                    command.Parameters.Add("@CPF", CPF);
                     command.Parameters.Add("@Data", aluno.Nascimento.ToString("yyyy-MM-dd"));
                     command.Parameters.Add("@Sexo", (int)aluno.Sexo);
 
