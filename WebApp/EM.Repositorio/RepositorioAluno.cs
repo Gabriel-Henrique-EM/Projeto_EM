@@ -30,24 +30,11 @@ namespace EM_RepositorioAluno
                 try
                 {
                     connection.Open();
-                    string stringCommand = "SELECT * FROM TBALUNO;";
+                    string stringCommand = "SELECT * FROM TBALUNO ORDER BY ALUMATRICULA;";
                     var command = new FbCommand(stringCommand, connection);
 
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            var aluno = new Aluno
-                            {
-                                Matricula = reader.GetInt32(reader.GetOrdinal("ALUMATRICULA")),
-                                Nome = reader.GetString(reader.GetOrdinal("ALUNOME")),
-                                CPF = reader.GetString(reader.GetOrdinal("ALUCPF")),
-                                Sexo = (EnumeradorSexo)reader.GetInt32(reader.GetOrdinal("ALUSEXO")),
-                                Nascimento = reader.GetDateTime(reader.GetOrdinal("ALUNASCIMENTO"))
-                            };
-                            alunos.Add(aluno);
-                        }
-                    }
+                    using var reader = command.ExecuteReader();
+                    alunos = ReadAlunos(reader);
                 }
                 catch (Exception ex)
                 {
@@ -103,8 +90,8 @@ namespace EM_RepositorioAluno
                     string stringCommand = $"SELECT * FROM TBALUNO WHERE ALUNOME LIKE '%{nome.ToLower()}%';";
                     var command = new FbCommand(stringCommand, connection);
 
-                    using (var reader = command.ExecuteReader())
-                         alunos = ReadAlunos(reader);
+                    using var reader = command.ExecuteReader();
+                    alunos = ReadAlunos(reader);
                 }
                 catch (Exception ex)
                 {
