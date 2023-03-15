@@ -21,7 +21,12 @@ namespace WebApp.Controllers
 
         }
 
-        public IActionResult Privacy()
+        public IActionResult Infos()
+        {
+            return View();
+        }
+
+        public IActionResult PageNotFound()
         {
             return View();
         }

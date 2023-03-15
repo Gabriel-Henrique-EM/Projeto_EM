@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Models;
 using WebApp.Helpers;
+using EM_DomainAluno;
 
 namespace WebApp.Controllers
 {
@@ -14,50 +15,75 @@ namespace WebApp.Controllers
         }
         public IActionResult Index(string ValorDaBusca, string TipoDeBusca)
         {
-            switch (TipoDeBusca)
+            ViewBag.Error = TempData["Error"] as string;
+            if (TipoDeBusca != null && ValorDaBusca == null) { return RedirectToAction("Index"); }
+            if (TipoDeBusca == "Matricula")
             {
-                default:
-                    var ListaDeAlunos = ConversaoDeTipos.conversaoListaDeDomainparaModel(_repositorio.GetAll());
-                    return View(ListaDeAlunos);
-
-                case "Matricula":
-                    if (ValorDaBusca == null) { return RedirectToAction("Index"); }
-                    BuscarPorMatricula(ValorDaBusca); break;
-
-                case "Nome":
-                    if (ValorDaBusca == null) { return RedirectToAction("Index"); }
-                    return BuscarPorNome(ValorDaBusca);
+                return BuscarPorMatricula(ValorDaBusca);
             }
-            return View();
+            if (TipoDeBusca == "Nome") 
+            {
+                return BuscarPorNome(ValorDaBusca);
+            }
+            else
+            {
+                var ListaDeAlunos = ConversaoDeTipos.ConversaoListaDeDomainparaModel(_repositorio.GetAll());
+                return View(ListaDeAlunos);
+            }
+            //switch (TipoDeBusca)
+            //{
+            //    default:
+            //        var ListaDeAlunos = ConversaoDeTipos.ConversaoListaDeDomainparaModel(_repositorio.GetAll());
+            //        return View(ListaDeAlunos);
+
+            //    case "Matricula":
+            //        if (ValorDaBusca == null) { return RedirectToAction("Index"); }
+            //        BuscarPorMatricula(ValorDaBusca); break;
+
+            //    case "Nome":
+            //        if (ValorDaBusca == null) { return RedirectToAction("Index"); }
+            //        return BuscarPorNome(ValorDaBusca);
+            //}
+            //return View();
         }
 
         public IActionResult BuscarPorMatricula(string valor)
         {
             if (!int.TryParse(valor, out int matricula))
             {
+                ViewBag.Error = "Só aceita números";
+                TempData["Error"] = ViewBag.Error;
                 return RedirectToAction("Index");
             }
             var aluno = _repositorio.GetByMatricula(matricula);
-            if (aluno.Matricula == 0) 
-            { 
+            if (aluno == null) 
+            {
+                ViewBag.Error = "Aluno não encontrado";
+                TempData["Error"] = ViewBag.Error;
                 return RedirectToAction("Index"); 
             }
-
             var listaDeAlunosPorMatricula = new List<AlunoModel>
             {
-                ConversaoDeTipos.conversaoDomainparaModel(aluno)
+                ConversaoDeTipos.ConversaoDomainparaModel(aluno)
             };
 
             return View(listaDeAlunosPorMatricula);
         }
+        
         public IActionResult BuscarPorNome(string valor)
         {
-            var ListaDeAlunosPorNome = ConversaoDeTipos.conversaoListaDeDomainparaModel(_repositorio.GetByContendoNoNome(valor));
+            var ListaDeAlunosPorNome = ConversaoDeTipos.ConversaoListaDeDomainparaModel(_repositorio.GetByContendoNoNome(valor));
+            
+            if (ListaDeAlunosPorNome == null)
+            {
+                ViewBag.Error = "Aluno não encontrado";
+                TempData["Error"] = ViewBag.Error;
+                return RedirectToAction("Index");
+            }
             return View(ListaDeAlunosPorNome);
         }
 
-
-        public IActionResult CadastrarEditar(int id = 0)
+        public IActionResult CadastrarEditar(int id)
         {
             ViewBag.Error = TempData["Error"] as string;
             if (id == 0)
@@ -65,18 +91,17 @@ namespace WebApp.Controllers
                 return View();
             }
             var aluno = _repositorio.GetByMatricula(id);
-            return View(ConversaoDeTipos.conversaoDomainparaModel(aluno));
+            if(aluno == null)
+            {
+                return View();
+            }
+            return View(ConversaoDeTipos.ConversaoDomainparaModel(aluno));
         }
 
         public IActionResult Cadastrar(AlunoModel alunoModel)
         {
-            var aluno = ConversaoDeTipos.conversaoDeModelParaDomain(alunoModel);
-            if (!ModelState.IsValid)
-            {
-                ViewBag.Error = "Alguma informação está errada";
-                TempData["Error"] = ViewBag.Error;
-                return RedirectToAction("CadastrarEditar");
-            }
+            var aluno = ConversaoDeTipos.ConversaoDeModelParaDomain(alunoModel);
+            
             if (aluno.CPF != null)
             {
                 if (!CpfUtils.IsCpf(aluno.CPF))
@@ -89,15 +114,10 @@ namespace WebApp.Controllers
             _repositorio.Add(aluno);
             return RedirectToAction("Index");
         }
+        
         public IActionResult Editar(AlunoModel alunoModel)
         {
-            var aluno = ConversaoDeTipos.conversaoDeModelParaDomain(alunoModel);
-            if (!ModelState.IsValid)
-            {
-                ViewBag.Error = "Alguma informação está errada";
-                TempData["Error"] = ViewBag.Error;
-                return RedirectToAction("CadastrarEditar", new { id = aluno.Matricula });
-            }
+            var aluno = ConversaoDeTipos.ConversaoDeModelParaDomain(alunoModel);
 
             if (aluno.CPF != null)
             {
@@ -111,10 +131,12 @@ namespace WebApp.Controllers
             _repositorio.Update(aluno);
             return RedirectToAction("Index");
         }
+        
         public IActionResult Deletar()
         {
             return PartialView();
         }
+        
         public IActionResult ConfirmarDeletar(int id)
         {
             var aluno = _repositorio.GetByMatricula(id);

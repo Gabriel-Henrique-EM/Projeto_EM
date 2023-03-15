@@ -5,31 +5,19 @@ namespace WebApp.Helpers
 {
     public static class  ConversaoDeTipos
     {
-        public static AlunoModel conversaoDomainparaModel(Aluno aluno)
+        public static AlunoModel ConversaoDomainparaModel(Aluno alunoDomain)
         {
-            AlunoModel alunoModel = new()
+            return new AlunoModel()
             {
-                Matricula = aluno.Matricula,
-                Nome = aluno.Nome,
-                CPF = aluno.CPF,
-                Nascimento = aluno.Nascimento,
-                Sexo = (EnumeradorSexo)aluno.Sexo
+                Matricula = alunoDomain.Matricula,
+                Nome = alunoDomain.Nome,
+                CPF = alunoDomain.CPF,
+                Nascimento = alunoDomain.Nascimento,
+                Sexo = (EnumeradorSexo)alunoDomain.Sexo
             };
-            return alunoModel;
         }
-        public static Aluno conversaoDeModelParaDomain(AlunoModel alunoModel)
-        {
-            Aluno aluno = new Aluno
-            {
-                Matricula = alunoModel.Matricula,
-                Nome = alunoModel.Nome,
-                Nascimento = alunoModel.Nascimento,
-                CPF = alunoModel.CPF,
-                Sexo = (EM_DomainEnum.EnumeradorSexo)alunoModel.Sexo
-            };
-            return aluno;
-        }
-        public static IEnumerable<AlunoModel> conversaoListaDeDomainparaModel(IEnumerable<Aluno> alunosDomain)
+
+        public static IEnumerable<AlunoModel> ConversaoListaDeDomainparaModel(IEnumerable<Aluno> alunosDomain)
         {
             IEnumerable<AlunoModel> ListaConvertida = alunosDomain.Select(o => new AlunoModel
             {
@@ -40,6 +28,18 @@ namespace WebApp.Helpers
                 Sexo = (EnumeradorSexo)o.Sexo,
             });
             return ListaConvertida;
+        }
+
+        public static Aluno ConversaoDeModelParaDomain(AlunoModel alunoModel)
+        {
+            return new Aluno
+            {
+                Matricula = alunoModel.Matricula,
+                Nome = alunoModel.Nome,
+                Nascimento = alunoModel.Nascimento,
+                CPF = alunoModel.CPF,
+                Sexo = (EM_DomainEnum.EnumeradorSexo)alunoModel.Sexo
+            };
         }
     }
 }

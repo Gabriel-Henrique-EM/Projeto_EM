@@ -11,14 +11,12 @@
     }
 }
 <div>
-    <div class="row justify-content-end">
-        @if (ViewBag.Error != null)
-        {
-            <div class="alert alert-danger col-2">
-                @ViewBag.Error
-            </div>
-        }
-    </div>
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger col-2-md" style="position: fixed; right: 2rem; top: 4rem">
+            @ViewBag.Error
+        </div>
+    }
     <h1>@ViewData["Title"] Aluno</h1>
     <hr />
     <div class="row justify-content-center align-content-center">

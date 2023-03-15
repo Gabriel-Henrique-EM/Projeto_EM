@@ -2,6 +2,7 @@
 using EM_DomainEnum;
 using EM_RepositorioAbstrato;
 using FirebirdSql.Data.FirebirdClient;
+using System.Data;
 using System.Linq.Expressions;
 
 namespace EM_RepositorioAluno
@@ -11,7 +12,7 @@ namespace EM_RepositorioAluno
         private readonly FbConnectionStringBuilder _connectionString;
         public RepositorioAluno()
         {
-            FbConnectionStringBuilder connectionString = new FbConnectionStringBuilder()
+            FbConnectionStringBuilder connectionString = new()
             {
                 UserID = "SYSDBA",
                 Password = "masterkey",
@@ -24,158 +25,139 @@ namespace EM_RepositorioAluno
 
         public override IEnumerable<Aluno> GetAll()
         {
-            using (var connection = new FbConnection(_connectionString.ToString()))
+            using var connection = new FbConnection(_connectionString.ToString());
+            var alunos = new List<Aluno>();
+            try
             {
-                var alunos = new List<Aluno>();
-                try
-                {
-                    connection.Open();
-                    string stringCommand = "SELECT * FROM TBALUNO ORDER BY ALUMATRICULA;";
-                    var command = new FbCommand(stringCommand, connection);
+                connection.Open();
+                string stringCommand = "SELECT * FROM TBALUNO ORDER BY ALUMATRICULA;";
+                var command = new FbCommand(stringCommand, connection);
 
-                    using var reader = command.ExecuteReader();
-                    alunos = ReadAlunos(reader);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Algo deu errado: " + ex);
-                }
-                return alunos;
+                using var reader = command.ExecuteReader();
+                alunos = ReadAlunos(reader);
             }
+            catch (Exception ex)
+            {
+                throw new Exception("Algo deu errado: " + ex);
+            }
+            return alunos;
         }
 
-        public Aluno GetByMatricula(int matricula)
+        public Aluno? GetByMatricula(int matricula)
         {
-            using (var connection = new FbConnection(_connectionString.ToString()))
+            using var connection = new FbConnection(_connectionString.ToString());
+            try
             {
-                var alunos = new Aluno();
-                try
-                {
-                    connection.Open();
-                    string stringCommand = @"SELECT * FROM TBALUNO WHERE ALUMATRICULA = @Matricula;";
-                    var command = new FbCommand(stringCommand, connection);
-                    command.Parameters.Add("@Matricula", matricula);
+                connection.Open();
+                string stringCommand = @"SELECT * FROM TBALUNO WHERE ALUMATRICULA = @Matricula;";
+                var command = new FbCommand(stringCommand, connection);
+                command.Parameters.Add("@Matricula", matricula);
 
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            var aluno = new Aluno
-                            {
-                                Matricula = reader.GetInt32(reader.GetOrdinal("ALUMATRICULA")),
-                                Nome = reader.GetString(reader.GetOrdinal("ALUNOME")),
-                                CPF = reader.GetString(reader.GetOrdinal("ALUCPF")),
-                                Sexo = (EnumeradorSexo)reader.GetInt32(reader.GetOrdinal("ALUSEXO")),
-                                Nascimento = reader.GetDateTime(reader.GetOrdinal("ALUNASCIMENTO"))
-                            };
-                            alunos = aluno;
-                        }
-                    }
-                }
-                catch (Exception ex)
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    throw new Exception("Algo deu errado: " + ex);
+                    return new Aluno
+                    {
+                        Matricula = reader.GetInt32("ALUMATRICULA"),
+                        Nome = reader.GetString("ALUNOME"),
+                        CPF = reader.GetString("ALUCPF"),
+                        Sexo = (EnumeradorSexo)reader.GetInt32("ALUSEXO"),
+                        Nascimento = reader.GetDateTime("ALUNASCIMENTO")
+                    };
                 }
-                return alunos;
             }
+            catch (Exception ex)
+            {
+                throw new Exception("Algo deu errado: " + ex);
+            }
+            return null;
         }
+
         public IEnumerable<Aluno> GetByContendoNoNome(string nome)
         {
-            using (var connection = new FbConnection(_connectionString.ToString()))
+            using var connection = new FbConnection(_connectionString.ToString());
+            var alunos = new List<Aluno>();
+            try
             {
-                var alunos = new List<Aluno>();
-                try
-                {
-                    connection.Open();
-                    string stringCommand = $"SELECT * FROM TBALUNO WHERE ALUNOME LIKE '%{nome.ToLower()}%';";
-                    var command = new FbCommand(stringCommand, connection);
-
-                    using var reader = command.ExecuteReader();
-                    alunos = ReadAlunos(reader);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Algo deu errado: " + ex);
-                }
-                return alunos;
+                connection.Open();
+                string stringCommand = $"SELECT * FROM TBALUNO WHERE ALUNOME LIKE '%{nome.ToLower()}%' ORDER BY ALUMATRICULA;";
+                var command = new FbCommand(stringCommand, connection);
+                using var reader = command.ExecuteReader();
+                alunos = ReadAlunos(reader);
             }
+            catch (Exception ex)
+            {
+                throw new Exception("Algo deu errado: " + ex);
+            }
+            return alunos;
         }
 
         public override IEnumerable<Aluno> Get(Expression<Func<Aluno, bool>> predicate)
         {
-            throw new NotImplementedException();
+            return GetAll().Where(predicate.Compile());
         }
 
         public override void Add(Aluno aluno)
         {
-            string? CPF = aluno.CPF?.Replace(".", "").Replace("-", "");
-            using (var connection = new FbConnection(_connectionString.ToString()))
+            using var connection = new FbConnection(_connectionString.ToString());
+            connection.Open();
+            try
             {
-                connection.Open();
-                try
-                {
-                    string stringCommand = "INSERT INTO TBALUNO (ALUMATRICULA, ALUNOME, ALUCPF, ALUNASCIMENTO, ALUSEXO) VALUES((GEN_ID(GEN_TBALUNO, 1)), @Nome, @CPF, @Data, @Sexo);";
-                    var command = new FbCommand(stringCommand, connection);
-
-                    command.Parameters.Add("@Nome", aluno.Nome.ToLower());
-                    command.Parameters.Add("@CPF", CPF);
-                    command.Parameters.Add("@Data", aluno.Nascimento.ToString("yyyy/MM/dd"));
-                    command.Parameters.Add("@Sexo", (int)aluno.Sexo);
-
-                    command.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Algo deu errado: " + ex);
-                }
+                string stringCommand = "INSERT INTO TBALUNO (ALUMATRICULA, ALUNOME, ALUCPF, ALUNASCIMENTO, ALUSEXO) VALUES((GEN_ID(GEN_TBALUNO, 1)), @Nome, @CPF, @Data, @Sexo);";
+                var command = new FbCommand(stringCommand, connection);
+                command.Parameters.Add("@Nome", aluno.Nome.ToLower());
+                string? CPF = aluno.CPF?.Replace(".", "").Replace("-", "");
+                command.Parameters.Add("@CPF", CPF);
+                command.Parameters.Add("@Data", aluno.Nascimento.ToString("yyyy/MM/dd"));
+                command.Parameters.Add("@Sexo", (int)aluno.Sexo);
+                command.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Algo deu errado: " + ex);
             }
         }
 
         public override void Remove(Aluno aluno)
         {
-            using (var connection = new FbConnection(_connectionString.ToString()))
+            using var connection = new FbConnection(_connectionString.ToString());
+            connection.Open();
+            try
             {
-                connection.Open();
-                try
-                {
-                    string stringCommand = @"DELETE FROM TBALUNO  WHERE ALUMATRICULA = @Matricula;";
-                    var command = new FbCommand(stringCommand, connection);
-                    command.Parameters.Add("@Matricula", aluno.Matricula);
+                string stringCommand = @"DELETE FROM TBALUNO  WHERE ALUMATRICULA = @Matricula;";
+                var command = new FbCommand(stringCommand, connection);
+                command.Parameters.Add("@Matricula", aluno.Matricula);
 
-                    command.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Algo deu errado: " + ex);
-                }
+                command.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Algo deu errado: " + ex);
             }
         }
 
         public override void Update(Aluno aluno)
         {
-            string? CPF = aluno.CPF?.Replace(".", "").Replace("-", "");
-            using (var connection = new FbConnection(_connectionString.ToString()))
+            using var connection = new FbConnection(_connectionString.ToString());
+            connection.Open();
+            try
             {
-                connection.Open();
-                try
-                {
-                    string Data = aluno.Nascimento.ToString("yyyy-MM-dd");
-                    string stringCommand = @"UPDATE TBALUNO SET ALUMATRICULA = @Matricula ,ALUNOME = @Nome,ALUCPF = @CPF, ALUNASCIMENTO = @Data, ALUSEXO = @Sexo
+                string stringCommand = @"UPDATE TBALUNO SET ALUMATRICULA = @Matricula ,ALUNOME = @Nome,ALUCPF = @CPF, ALUNASCIMENTO = @Data, ALUSEXO = @Sexo
                                                 WHERE ALUMATRICULA = @Matricula;";
-                    var command = new FbCommand(stringCommand, connection);
+                var command = new FbCommand(stringCommand, connection);
 
-                    command.Parameters.Add("@Matricula", aluno.Matricula);
-                    command.Parameters.Add("@Nome", aluno.Nome.ToLower());
-                    command.Parameters.Add("@CPF", CPF);
-                    command.Parameters.Add("@Data", aluno.Nascimento.ToString("yyyy-MM-dd"));
-                    command.Parameters.Add("@Sexo", (int)aluno.Sexo);
+                command.Parameters.Add("@Matricula", aluno.Matricula);
+                command.Parameters.Add("@Nome", aluno.Nome.ToLower());
+                string? CPF = aluno.CPF?.Replace(".", "").Replace("-", "");
+                command.Parameters.Add("@CPF", CPF);
+                command.Parameters.Add("@Data", aluno.Nascimento.ToString("yyyy-MM-dd"));
+                command.Parameters.Add("@Sexo", (int)aluno.Sexo);
 
-                    command.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Algo deu errado: " + ex);
-                }
+                command.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Algo deu errado: " + ex);
             }
         }
 
@@ -186,11 +168,11 @@ namespace EM_RepositorioAluno
             {
                 var aluno = new Aluno
                 {
-                    Matricula = reader.GetInt32(reader.GetOrdinal("ALUMATRICULA")),
-                    Nome = reader.GetString(reader.GetOrdinal("ALUNOME")),
-                    CPF = reader.GetString(reader.GetOrdinal("ALUCPF")),
-                    Sexo = (EnumeradorSexo)reader.GetInt32(reader.GetOrdinal("ALUSEXO")),
-                    Nascimento = reader.GetDateTime(reader.GetOrdinal("ALUNASCIMENTO"))
+                    Matricula = reader.GetInt32("ALUMATRICULA"),
+                    Nome = reader.GetString("ALUNOME"),
+                    CPF = reader.GetString("ALUCPF"),
+                    Sexo = (EnumeradorSexo)reader.GetInt32("ALUSEXO"),
+                    Nascimento = reader.GetDateTime("ALUNASCIMENTO")
                 };
                 alunos.Add(aluno);
             }

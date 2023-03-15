@@ -23,7 +23,7 @@
                             <a class="nav-link" asp-controller="Aluno" asp-action="Index">Lista de Cadastros</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Usuario" asp-action="Cadastro">Infos</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Infos">Infos</a>
                         </li>
                     </ul>
                 </div>
@@ -31,15 +31,15 @@
         </nav>
     </header>
 
-    <div class="container " style="height: 80vh;">
-        <main role="main" >
+    <div class="container">
+        <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted fixed-bottom p-3">
+    <footer class="border-top footer text-muted fixed-bottom">
         <div class="container">
-            &copy; 2023 - Gabriel Henrique - <a asp-controller="Home" asp-action="Index">Home</a>
+            &copy; 2023 - Gabriel Henrique - <a asp-area="" asp-controller="Home" asp-action="Index">Home</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

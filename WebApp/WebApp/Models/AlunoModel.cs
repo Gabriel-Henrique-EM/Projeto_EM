@@ -8,6 +8,7 @@ namespace WebApp.Models
     {
         
         public int Matricula { get; set; }
+
         [Required(ErrorMessage = "Campo obrigatorio!")]       
         [StringLength(100, MinimumLength = 3,ErrorMessage = "O nome tem que ter de 3 a 100 caracteres")]
         public string Nome { get; set; }
@@ -21,9 +22,9 @@ namespace WebApp.Models
         [Required(ErrorMessage = "Campo obrigatorio!")]
         public EnumeradorSexo Sexo { get; set; }
 
-
         public string NascimentoFormatado => Nascimento.ToString("dd/MM/yyyy");
-        public string NomeFormatado => string.IsNullOrEmpty(Nome) ? "" : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(this.Nome);
+        public string NomeFormatado => string.IsNullOrEmpty(Nome) ? "" : 
+            CultureInfo.CurrentCulture.TextInfo.ToTitleCase(this.Nome);
         public string CPFFormatado => 
             string.IsNullOrEmpty(CPF) ? "" : 
             string.Format("{0:000\\.000\\.000-00}", 
