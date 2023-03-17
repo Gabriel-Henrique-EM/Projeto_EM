@@ -16,9 +16,9 @@ namespace EM_RepositorioAluno
             {
                 UserID = "SYSDBA",
                 Password = "masterkey",
-                Database = "C:\\Users\\Escolar Manager\\Desktop\\Projeto_EM\\DBALUNOS.FB4",
-                DataSource = "192.168.1.143",
-                Port = 3054
+                //Database = "C:\\Users\\gabri\\OneDrive\\Área de Trabalho\\Projeto_EM\\DBALUNOS.FB4",
+                //DataSource = "localhost",
+                //Port = 3050
             };
             _connectionString = connectionString;
         }
@@ -71,9 +71,11 @@ namespace EM_RepositorioAluno
                 throw new Exception("Algo deu errado: " + ex);
             }
             return null;
+
+            //return GetAll().FirstOrDefault(alunos => alunos.Matricula == matricula); ;
         }
 
-        public IEnumerable<Aluno> GetByContendoNoNome(string nome)
+        public IEnumerable<Aluno>? GetByContendoNoNome(string nome)
         {
             using var connection = new FbConnection(_connectionString.ToString());
             var alunos = new List<Aluno>();
@@ -90,6 +92,13 @@ namespace EM_RepositorioAluno
                 throw new Exception("Algo deu errado: " + ex);
             }
             return alunos;
+            //var alunos =  GetAll().Where(alunos => alunos.Nome.Contains(nome));
+            //if(alunos != null)
+            //{
+            //    return alunos;
+
+            //}
+            //return null;
         }
 
         public override IEnumerable<Aluno> Get(Expression<Func<Aluno, bool>> predicate)

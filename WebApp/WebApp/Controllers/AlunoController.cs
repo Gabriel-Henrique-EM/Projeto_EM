@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Models;
 using WebApp.Helpers;
-using EM_DomainAluno;
 
 namespace WebApp.Controllers
 {
@@ -72,15 +71,17 @@ namespace WebApp.Controllers
         
         public IActionResult BuscarPorNome(string valor)
         {
-            var ListaDeAlunosPorNome = ConversaoDeTipos.ConversaoListaDeDomainparaModel(_repositorio.GetByContendoNoNome(valor));
-            
-            if (ListaDeAlunosPorNome == null)
+            var lista = _repositorio.GetByContendoNoNome(valor);
+            if (!lista.Any())
             {
                 ViewBag.Error = "Aluno não encontrado";
                 TempData["Error"] = ViewBag.Error;
                 return RedirectToAction("Index");
             }
-            return View(ListaDeAlunosPorNome);
+            else
+            {
+                return View(ConversaoDeTipos.ConversaoListaDeDomainparaModel(lista));
+            }
         }
 
         public IActionResult CadastrarEditar(int id)
