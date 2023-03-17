@@ -4,13 +4,23 @@
 }
 
 
-@if (ViewBag.Error != null)
-{
-    <div class="alert alert-danger col-2-md" style="position: fixed; right: 2rem; top: 4rem">
-        @ViewBag.Error
-    </div>
-}
+
 <div class="text-center">
+        
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-warning col-2-md" id="AlertaDeErro" style="position: absolute; right: 2rem; top: 4rem;">
+            @ViewBag.Error
+        </div>
+        <script>
+            
+            setTimeout(() => 
+            {
+                let alertaDeErro = document.getElementById("AlertaDeErro");
+                alertaDeErro.style.display = "none";
+            }, 5000)
+        </script>
+    }
     <div>
         @{
             await Html.RenderPartialAsync("Deletar");
@@ -38,12 +48,13 @@
             </div>
             <div class="input-group w-auto">
                 <input type="text" name="ValorDaBusca" class="form-control-sm" required/>
-                <input type="submit" class="btn btn-primary" />
+                <input type="submit" class="btn btn-primary"
+                 oninput="if (/^\s+$/.test(this.value)) this.value = '';"/>      
             </div>
         </form>
     </div>
     <div class="table-responsive">
-        <table class="table table-striped table-bordered table-responsive-lg">
+        <table class="table table-striped table-bordered table-responsive-xl">
         <thead class="bg-success">
             <tr>
                 <th scope="col" class="text-white">

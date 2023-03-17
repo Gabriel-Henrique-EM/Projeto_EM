@@ -9,7 +9,8 @@ namespace WebApp.Models
         
         public int Matricula { get; set; }
 
-        [Required(ErrorMessage = "Campo obrigatorio!")]       
+        [Required(ErrorMessage = "Campo obrigatorio!")]
+        [RegularExpression(@"^(?!\s*$)[a-zA-ZÀ-ÿ\s]*$", ErrorMessage = "O campo de nome não deve conter números ou caracteres especiais.")]
         [StringLength(100, MinimumLength = 3,ErrorMessage = "O nome tem que ter de 3 a 100 caracteres")]
         public string Nome { get; set; }
 

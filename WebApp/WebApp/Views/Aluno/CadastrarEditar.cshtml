@@ -1,7 +1,7 @@
 ﻿@model AlunoModel
 
 @{
-    if (Model != null)
+    if (Model != null && Model.Matricula != 0)
     {
         ViewData["Title"] = "Editar";
     }
@@ -13,15 +13,22 @@
 <div>
     @if (ViewBag.Error != null)
     {
-        <div class="alert alert-danger col-2-md" style="position: fixed; right: 2rem; top: 4rem">
+        <div class="alert alert-warning col-2-md" id="AlertaDeErro" style="position: absolute; right: 2rem; top: 4rem">
             @ViewBag.Error
         </div>
+        <script>
+            setTimeout(() => 
+            {
+                let alertaDeErro = document.getElementById("AlertaDeErro");
+                alertaDeErro.style.display = "none";
+            }, 5000)
+        </script>
     }
     <h1>@ViewData["Title"] Aluno</h1>
     <hr />
     <div class="row justify-content-center align-content-center">
         <div class="col-md-4">
-            <form asp-action="@ViewData["Title"]">
+            <form asp-action="CadastrarEditar" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
                     <label asp-for="Nome" class="control-label"></label>
@@ -38,7 +45,7 @@
                 </div>
                 <div class="form-group">
                     <label asp-for="Nascimento" class="control-label"></label>
-                    <input asp-for="Nascimento" type="date" class="form-control" />
+                    <input asp-for="Nascimento" type="date" class="form-control" max="2022-12-31" />
                     <span asp-validation-for="Nascimento" class="text-danger"></span>
                 </div>
                 <div class="form-group">

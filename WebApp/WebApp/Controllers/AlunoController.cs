@@ -15,13 +15,13 @@ namespace WebApp.Controllers
         public IActionResult Index(string ValorDaBusca, string TipoDeBusca)
         {
             ViewBag.Error = TempData["Error"] as string;
-            if (TipoDeBusca != null && ValorDaBusca == null) { return RedirectToAction("Index"); }
             if (TipoDeBusca == "Matricula")
             {
                 return BuscarPorMatricula(ValorDaBusca);
             }
-            if (TipoDeBusca == "Nome") 
+            if (TipoDeBusca == "Nome")
             {
+                if(ValorDaBusca == null) {return RedirectToAction("Index");}
                 return BuscarPorNome(ValorDaBusca);
             }
             else
@@ -29,37 +29,22 @@ namespace WebApp.Controllers
                 var ListaDeAlunos = ConversaoDeTipos.ConversaoListaDeDomainparaModel(_repositorio.GetAll());
                 return View(ListaDeAlunos);
             }
-            //switch (TipoDeBusca)
-            //{
-            //    default:
-            //        var ListaDeAlunos = ConversaoDeTipos.ConversaoListaDeDomainparaModel(_repositorio.GetAll());
-            //        return View(ListaDeAlunos);
-
-            //    case "Matricula":
-            //        if (ValorDaBusca == null) { return RedirectToAction("Index"); }
-            //        BuscarPorMatricula(ValorDaBusca); break;
-
-            //    case "Nome":
-            //        if (ValorDaBusca == null) { return RedirectToAction("Index"); }
-            //        return BuscarPorNome(ValorDaBusca);
-            //}
-            //return View();
         }
 
         public IActionResult BuscarPorMatricula(string valor)
         {
             if (!int.TryParse(valor, out int matricula))
             {
-                ViewBag.Error = "Só aceita números";
+                ViewBag.Error = "Essa opção só aceita números";
                 TempData["Error"] = ViewBag.Error;
                 return RedirectToAction("Index");
             }
             var aluno = _repositorio.GetByMatricula(matricula);
-            if (aluno == null) 
+            if (aluno == null)
             {
                 ViewBag.Error = "Aluno não encontrado";
                 TempData["Error"] = ViewBag.Error;
-                return RedirectToAction("Index"); 
+                return RedirectToAction("Index");
             }
             var listaDeAlunosPorMatricula = new List<AlunoModel>
             {
@@ -68,10 +53,11 @@ namespace WebApp.Controllers
 
             return View(listaDeAlunosPorMatricula);
         }
-        
+
         public IActionResult BuscarPorNome(string valor)
         {
-            var lista = _repositorio.GetByContendoNoNome(valor);
+            var lista = _repositorio.GetByContendoNoNome(valor.ToLower());
+
             if (!lista.Any())
             {
                 ViewBag.Error = "Aluno não encontrado";
@@ -92,52 +78,44 @@ namespace WebApp.Controllers
                 return View();
             }
             var aluno = _repositorio.GetByMatricula(id);
-            if(aluno == null)
+            if (aluno == null)
             {
                 return View();
             }
-            return View(ConversaoDeTipos.ConversaoDomainparaModel(aluno));
+            var convertido = ConversaoDeTipos.ConversaoDomainparaModel(aluno);
+            return View(convertido);
         }
 
-        public IActionResult Cadastrar(AlunoModel alunoModel)
+        [HttpPost]
+        public IActionResult CadastrarEditar(AlunoModel alunoModel)
         {
-            var aluno = ConversaoDeTipos.ConversaoDeModelParaDomain(alunoModel);
-            
-            if (aluno.CPF != null)
+
+            if (alunoModel.CPF != null)
             {
-                if (!CpfUtils.IsCpf(aluno.CPF))
+                if (!CpfUtils.IsCpf(alunoModel.CPF))
                 {
                     ViewBag.Error = "CPF invalido";
                     TempData["Error"] = ViewBag.Error;
-                    return RedirectToAction("CadastrarEditar");
+                    return View(alunoModel);
                 }
             }
-            _repositorio.Add(aluno);
-            return RedirectToAction("Index");
-        }
-        
-        public IActionResult Editar(AlunoModel alunoModel)
-        {
             var aluno = ConversaoDeTipos.ConversaoDeModelParaDomain(alunoModel);
-
-            if (aluno.CPF != null)
+            if (aluno.Matricula != 0)
             {
-                if (!CpfUtils.IsCpf(aluno.CPF))
-                {
-                    ViewBag.Error = "CPF invalido";
-                    TempData["Error"] = ViewBag.Error;
-                    return RedirectToAction("CadastrarEditar", new { id = aluno.Matricula });
-                }
+                _repositorio.Update(aluno);
             }
-            _repositorio.Update(aluno);
+            else
+            {
+                _repositorio.Add(aluno);
+            }
             return RedirectToAction("Index");
         }
-        
+
         public IActionResult Deletar()
         {
             return PartialView();
         }
-        
+
         public IActionResult ConfirmarDeletar(int id)
         {
             var aluno = _repositorio.GetByMatricula(id);
@@ -150,3 +128,37 @@ namespace WebApp.Controllers
         }
     }
 }
+
+//public IActionResult Cadastrar(AlunoModel alunoModel)
+//{
+//    var aluno = ConversaoDeTipos.ConversaoDeModelParaDomain(alunoModel);
+
+//    if (aluno.CPF != null)
+//    {
+//        if (!CpfUtils.IsCpf(aluno.CPF))
+//        {
+//            ViewBag.Error = "CPF invalido";
+//            TempData["Error"] = ViewBag.Error;
+//            return RedirectToAction("CadastrarEditar", aluno);
+//        }
+//    }
+//    _repositorio.Add(aluno);
+//    return RedirectToAction("Index");
+//}
+
+//public IActionResult Editar(AlunoModel alunoModel)
+//{
+//    var aluno = ConversaoDeTipos.ConversaoDeModelParaDomain(alunoModel);
+
+//    if (aluno.CPF != null)
+//    {
+//        if (!CpfUtils.IsCpf(aluno.CPF))
+//        {
+//            ViewBag.Error = "CPF invalido";
+//            TempData["Error"] = ViewBag.Error;
+//            return RedirectToAction("CadastrarEditar", new { id = aluno.Matricula });
+//        }
+//    }
+//    _repositorio.Update(aluno);
+//    return RedirectToAction("Index");
+//}
